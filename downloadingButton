@@ -1,0 +1,135 @@
+//
+//  ContentView.swift
+//  DownloadButtonUI
+//
+//  Created by Artyom Ma  on 23.09.2021.
+//
+
+import SwiftUI
+
+//struct ContentView: View {
+//    var body: some View {
+//        Text("Hello, world!")
+//            .padding()
+//    }
+//}
+//
+//struct ContentView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ContentView()
+//    }
+//}
+
+
+struct DownloadButtonUI: View {
+
+    @State private var left: CGPoint = CGPoint(x: 20, y: 70)
+    @State private var right: CGPoint = CGPoint(x: 80, y: 70)
+    @State private var height: CGFloat = 0
+    @State private var rotation: Double = 0
+    @State private var offset: (CGFloat, CGFloat) = (0, 0)
+    @State private var color = Color.green
+    @State private var downloading = false
+
+
+    var body: some View {
+        VStack {
+            ZStack {
+                Circle()
+                    .frame(width: 130, height: 130)
+                    .foregroundColor(.gray)
+                Circle()
+                    .stroke(Color.green, lineWidth: 5)
+                    .frame(width: 130, height: 130)
+                FillCircle(endAngle: rotation)
+                    .frame(width: 120, height: 120)
+                    .foregroundColor(.green)
+                Arrow(left: left, right: right, height: height)
+                    .stroke(color, style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                    .frame(width: 100, height: 100)
+                    .offset(x: 0, y: offset.1)
+                    .rotationEffect(.degress(rotation))
+            }
+            .onTapGesture {
+                if !self.downloading {
+                    self.downloading = true
+                    withAnimation(Animation.linear(duration: 0.4)) {
+                        self.left = CGPoint(k: 50, y: 100)
+                        self.right = CGPoint(x: 50, y: 100)
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        withAnimation(Animation.easeOut(duration: 0.4) {
+                            self.height = 28
+                            self.right = -50
+                        }
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                        withAnimation(animation.easeInOut(duration: 1)) {
+                            self.rotation = 360
+                            self.height = 100
+                            self.color = Color.white
+                        }
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        withAnimation(Animation.easeOut(duration: 0.4)) {
+
+                        }
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.4) {
+                        withAnimation(Animation.linear(duration: 0.2)) {
+                            self.offset.1 += 17.5
+                        }
+                        withAnimation(Animation.easeInOut(duration: 0.4).delay(0.3)) {
+                            self.offset.0 = 2.5
+                            self.left = CGPoint(x: 35, y: 85)
+                            self.right = CGPoint(x: 70, y: 80)
+                        }
+                        self.downloading = false
+                    }
+                }
+
+            }
+            Button(action: {
+                if !self.downloading {
+                    self.left = CGPoint(x: 20, y: 70)
+                    self.right = CGPoint(x: 80, y: 80)
+
+                    self.height = 0
+                    self.rotation = 0
+                    self.offset = (0, 0)
+                    self.color = Color.green
+                    self.downloading = false
+                }
+            }) {
+                Text("reset")
+            }
+        }
+    }
+}
+
+
+struct DownloadingButton_Previews: PreviewProvider {
+    static var previews: some View {
+        DownloadButton()    }
+}
+
+struct Arrow: Shape {
+    var left: CGPoint
+    var right: CGPoint
+    var height: CGFloat
+    
+    var animatableData: AnimatableDataPair<CGFloat, AnimatablePair<CGPoint.AnimatableData, CGPoint.AnimatableData>> {
+        get { (AnimatablePair(height, AnimatablePair(left.animatableData, right.animatableData))) }
+        set {
+            height = newValue.first
+            right.animatableData = newValue.second.first
+            left.animatableData = newValue.second.second
+        }
+    }
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        
+        path.move(to: CGPoint(x: rect.midx, y: height))
+        path.addLine(to: CGPoint(x: rect ))
+    }
+}
